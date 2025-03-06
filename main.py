@@ -1,38 +1,53 @@
-import os
+import json
 import boto3
 import streamlit as st
+from botocore.exceptions import ClientError
 
-from langchain.chains import LLMChain
-from langchain_aws import ChatBedrock
-from langchain.prompts import PromptTemplate
 
 #bedrock client
-bedrock_client = boto3.client(
+client = boto3.client(
     service_name="bedrock-runtime",
     region_name="us-east-1"
 )
-modelID = "meta.llama3-1-8b-instruct-v1:0"
+model_id  = "us.meta.llama3-1-8b-instruct-v1:0"
 
-llm = ChatBedrock(
-    model_id=modelID,
-    client=bedrock_client,
-    model_kwargs={"max_tokens_to_sample": 1000,"temperature":0.9}
-)
+# Define the prompt for the model.
+prompt = "What is the capital of Japan?"
+
 
 def my_chatbot(prompt):
-    # prompt = PromptTemplate(
-    #     input_variables=["language", "freeform_text"],
-    #     template="You are a chatbot. You are in {language}.\n\n{freeform_text}"
-    # )
+    # Embed the prompt in Llama 3's instruction format.
+    formatted_prompt = f"""
+    <|begin_of_text|><|start_header_id|>user<|end_header_id|>
+    {prompt}
+    <|eot_id|>
+    <|start_header_id|>assistant<|end_header_id|>
+    """
 
-    # bedrock_chain = LLMChain(llm=llm, prompt=prompt)
+    # Format the request payload using the model's native structure.
+    native_request = {
+        "prompt": formatted_prompt,
+        "max_gen_len": 512,
+        "temperature": 0.5,
+    }
 
+    # Convert the native request to JSON.
+    request = json.dumps(native_request)
 
-    # response=bedrock_chain({'language':language, 'freeform_text':freeform_text})
-    response = llm.invoke(prompt)
-    return response
+    try:
+        # Invoke the model with the request.
+        response = client.invoke_model(modelId=model_id, body=request)
+        # Decode the response body.
+        model_response = json.loads(response["body"].read())
+        return model_response
+
+    except (ClientError, Exception) as e:
+        print(f"ERROR: Can't invoke '{model_id}'. Reason: {e}")
+    
+
 
 st.title("Bedrock Chatbot")
-
-response = my_chatbot("What is the capital of Japan?")
-print(response)
+freeform_text = st.text_area(label="what is your question?", max_chars=100)
+if freeform_text:
+    model_response = my_chatbot(freeform_text)
+    st.write(model_response['generation'])
