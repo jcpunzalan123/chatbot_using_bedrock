@@ -27,7 +27,7 @@ building the user interface. The chatbot can engage in simple conversations and 
 
 ### Setup Instructions
 
-1.  Clone the repository: `git clone https://github.com/your-username/amazon-bedrock-chatbot.git`
+1.  Clone the repository: `git clone https://github.com/jcpunzalan123/chatbot_using_bedrock.git`
 2.  Install dependencies: `pip install -r requirements.txt`
 
 
