@@ -45,8 +45,7 @@ def my_chatbot(prompt):
         print(f"ERROR: Can't invoke '{model_id}'. Reason: {e}")
     
 
-
-st.title("Bedrock Chatbot")
+st.title("AI Chatbot using Amazon Bedrock")
 freeform_text = st.text_area(label="what is your question?", max_chars=100)
 if freeform_text:
     model_response = my_chatbot(freeform_text)
