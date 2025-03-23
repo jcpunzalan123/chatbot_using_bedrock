@@ -34,7 +34,7 @@
             display: block;
             width: 100%;
             padding: 10px;
-            background-color: #28a745;
+            background-color: #286ea7;
             color: white;
             border: none;
             border-radius: 4px;
@@ -59,9 +59,48 @@
 <body>
 
     <div id="container">
-        <h1>AWS Bedrock's Claude Model in Action</h1>
+        <h1>AWS Bedrock's Llama</h1>
         <textarea id="user-prompt" rows="5" placeholder="Enter your prompt here..."></textarea>
         <button id="submit-btn">Ask</button>
         <div id="response-container" class="response" style="display: none;"></div>
     </div>
+
+    <script>
+        document.getElementById("submit-btn").addEventListener("click", function() {
+            const prompt = document.getElementById("user-prompt").value;
+            const responseContainer = document.getElementById("response-container");
+    
+            if (prompt.trim() === "") {
+                alert("Please enter a prompt.");
+                return;
+            }
+    
+            // Display loading text
+            responseContainer.style.display = "block";
+            responseContainer.textContent = "Thinking...";
+    
+            // Make POST request to API Gateway
+            fetch('https://5oaydmyf9i.execute-api.us-east-1.amazonaws.com/dev/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt: prompt
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    responseContainer.textContent = data.response;
+                } else if (data.error) {
+                    responseContainer.textContent = `Error: ${data.error}`;
+                }
+            })
+            .catch(error => {
+                responseContainer.textContent = `Error: ${error}`;
+            });
+        });
+    </script>
 </body>    
+</html>
