@@ -83,7 +83,8 @@
             fetch('https://5oaydmyf9i.execute-api.us-east-1.amazonaws.com/dev/ask', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    "Access-Control-Allow-Origin": "*", // Required for CORS support to work
                 },
                 body: JSON.stringify({
                     prompt: prompt
